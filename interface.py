@@ -51,7 +51,7 @@ root = Tk()
 
 alphabet = []
 
-lower_state, upper_state, nums_state, special_char_state = IntVar(),IntVar(),IntVar(),IntVar()
+lower_state, upper_state, nums_state, special_char_state = IntVar(value=1),IntVar(value=1),IntVar(value=1),IntVar(value=1)
 
 lower = Checkbutton(root, text="lowercase",bg="#66ccff",variable=lower_state)
 upper = Checkbutton(root, text="UPPERCASE",bg="#66ccff",variable=upper_state)
