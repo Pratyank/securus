@@ -1,26 +1,46 @@
 import hashlib
 import binascii
 
-website = input("Please enter the website domain: ")
-user_name = input("Please enter your username: ")
-master_password = input("Please enter your master password: ")
-version = input("Please enter a positive integer for the password version you would like to generate: ")
-length = (int)(input("Please specify the length of the password you would like: "))
+def generate_salt_one(website,user_name,version):
+    return website + user_name + version
 
+def generate_salt_two(website,master_password,version):
+    return website + master_password + version
 
+def key_stretch_one(salt_one,master_password):
+    return decode_utf(hashlib.pbkdf2_hmac
+                            ("sha256", encode_utf(master_password),
+                                                encode_utf(salt_one), 100000, 32))
+def key_stretch_two(salt_two,ver_one, length):
+    return decode_utf(binascii.hexlify(hashlib.pbkdf2_hmac
+                            ("sha256", encode_utf(ver_one),
+                                                encode_utf(salt_two), 100000, length))) #.decode() instead ?
+def decimal_to_alphabet(ver_two, length,alphabet):
+    num_elements = len(alphabet)
+    chars = []
+    while len(chars) < length:
+        ver_two, index = divmod(ver_two, num_elements)
+        chars.append(alphabet[index])
+    ver_two = ''.join(chars)
+    return ver_two
+    
+def encode_utf(txt):
+    return txt.encode("utf-8")
 
-def generate_password(website, user_name, master_password, version):
-    salt_one = website + user_name + version
-    salt_two = website + user_name + version 
+def decode_utf(txt):
+    return txt.decode("utf-8",'ignore')
+
+def generate_password(website, user_name, master_password, version, length,alphabet):
+    salt_one = generate_salt_one(website,user_name,version)
+    salt_two = generate_salt_two(website,master_password,version)
     middle = length
-    gen_one = binascii.hexlify(hashlib.pbkdf2_hmac
-                            ("sha256", master_password.encode("utf-8"),
-                                                salt_one.encode("utf-8"), 100000, 32)).decode()
-    gen_two = binascii.hexlify(hashlib.pbkdf2_hmac
-                            ("sha256", gen_one.encode("utf-8"),
-                                                salt_two.encode("utf-8"), 100000, length)).decode()
-    gen_two = gen_two[:middle]
-    return gen_two
+    ver_one = key_stretch_one(salt_one,master_password)
+    ver_two = key_stretch_two(salt_two,ver_one,length)
+    ver_two = ver_two[:middle]
+    ver_two = Decimal_to_hexdecimal(ver_two)
+    ver_three = decimal_to_alphabet(ver_two, length,alphabet)
+    return ver_three
+    
+def Decimal_to_hexdecimal(Dec):
+    return int(Dec,16)
 
-
-print(generate_password(website, user_name, master_password, version))
